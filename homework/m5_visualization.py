@@ -29,6 +29,10 @@ def green_bar_category():
     提示：sns.countplot 或 value_counts().plot.bar()
     """
     # TODO: 你的程式碼
+    df = _load_data()
+    plt.figure(figsize = (8, 4))
+    sns.countplot(data = df, x = "category")
+    return plt.gcf()
     pass
 
 
@@ -39,6 +43,10 @@ def green_hist_amount():
     提示：sns.histplot(bins=20) 或 plt.hist()
     """
     # TODO: 你的程式碼
+    df = _load_data()
+    plt.figure(figsize=(8,4))
+    sns.histplot(bins = 20, x = "amount", data = df)
+    return plt.gcf()
     pass
 
 
@@ -51,6 +59,13 @@ def green_set_labels():
     回傳 matplotlib Figure 物件
     """
     # TODO: 你的程式碼
+    df = _load_data()
+    plt.figure(figsize = (8, 4))
+    sns.countplot(data = df, x = "category")
+    plt.title("category_order_count")
+    plt.xlabel("category")
+    plt.ylabel("order_count")
+    return plt.gcf()
     pass
 
 
@@ -68,6 +83,21 @@ def yellow_line_region_trend():
     提示：分別 groupby 再 plot，或用 sns.lineplot(hue='region')
     """
     # TODO: 你的程式碼
+    df = _load_data()
+    df["month"] = df["order_date"].dt.to_period("M")
+    region_monthly_revenue = (
+        df[df["region"].isin(["North", "South"])]
+        .groupby(["month", "region"])["amount"]
+        .sum()
+        .unstack()
+    )
+    fig, ax = plt.subplots(figsize=(8, 4))
+
+    region_monthly_revenue.plot(
+        marker="o",
+        ax=ax
+    )
+    return fig
     pass
 
 
@@ -78,6 +108,10 @@ def yellow_box_vip():
     提示：sns.boxplot(x='vip_level', y='amount', data=df)
     """
     # TODO: 你的程式碼
+    df = _load_data()
+    fig, ax = plt.subplots(figsize=(8, 4))
+    sns.boxplot(x = "vip_level", y = "amount", data = df)
+    return fig
     pass
 
 
@@ -88,6 +122,10 @@ def yellow_scatter_price_amount():
     提示：plt.scatter() 或 sns.scatterplot()
     """
     # TODO: 你的程式碼
+    df = _load_data()
+    plt.figure(figsize=(8, 4))
+    plt.scatter(x = "unit_price", y = "amount", data = df)
+    return plt.gcf()
     pass
 
 
@@ -107,4 +145,21 @@ def red_category_dashboard(category="Electronics"):
     提示：fig, axes = plt.subplots(2, 2, figsize=(14, 10))
     """
     # TODO: 你的程式碼
+    df = _load_data()
+    df["month"] = df["order_date"].dt.to_period("M").astype("str")
+    df = df[df["category"].isin(["Electronics"])]
+    fig, axes = plt.subplots(2, 2, figsize = (14,10))
+
+
+    sns.lineplot(data=df, x = "month", y = "amount", marker="o", ax = axes[0, 0], estimator = "sum", errorbar=None )
+    axes[0, 0].tick_params(axis='x', rotation=45)
+
+    sns.barplot(data=df, x = "region", y = "amount", estimator="sum",
+        errorbar=None, ax = axes[0,1] )
+
+    df.groupby("product_name")["amount"].sum().sort_values(ascending=False).head(5).plot.barh(ax=axes[1,0])
+
+    sns.histplot(data = df, x = "amount", bins=20, ax=axes[1,1])
+
+    return fig
     pass

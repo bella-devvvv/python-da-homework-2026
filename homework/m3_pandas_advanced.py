@@ -24,18 +24,27 @@ def green_load_and_merge():
     提示：pd.merge(how='left')
     """
     # TODO: 你的程式碼
+    df1 = pd.read_csv("../datasets/ecommerce/orders_clean.csv")
+    df2 = pd.read_csv("../datasets/ecommerce/customers.csv")
+    df3 = pd.read_csv("../datasets/ecommerce/products.csv")
+    df = df1.merge(df2, on = "customer_id", how = "left")
+    df = df.merge(df3, on = "product_id", how = "left")
+    return df
+
     pass
 
 
 def green_row_count(df):
     """回傳 DataFrame 的列數 (int)"""
     # TODO: 你的程式碼
+    return df.shape[0]
     pass
 
 
 def green_column_list(df):
     """回傳 DataFrame 的所有欄位名稱 (list)"""
     # TODO: 你的程式碼
+    return list(df.columns)
     pass
 
 
@@ -50,6 +59,7 @@ def yellow_top_category(df):
     提示：groupby('category')['amount'].sum()
     """
     # TODO: 你的程式碼
+    return df.groupby("category")["amount"].sum().sort_values().idxmax()
     pass
 
 
@@ -60,6 +70,9 @@ def yellow_gold_vip_stats(df):
     提示：df[df['vip_level'] == 'Gold']
     """
     # TODO: 你的程式碼
+    order_count = df[df["vip_level"] == "Gold"].shape[0]
+    total_amount = df[df["vip_level"] == "Gold"]["amount"].sum()
+    return (order_count, total_amount)
     pass
 
 
@@ -70,6 +83,7 @@ def yellow_region_avg_amount(df):
     提示：groupby('region')['amount'].mean()
     """
     # TODO: 你的程式碼
+    return df.groupby("region")["amount"].mean()
     pass
 
 
@@ -94,4 +108,15 @@ def red_rfm_top5(df):
     提示：groupby('customer_id').agg(...)
     """
     # TODO: 你的程式碼
+    result_df =  df.groupby("customer_id").agg({
+    "customer_name" : "first",
+    "order_date":"max",
+    "order_id" : "count",
+    "amount" : "sum"
+}).rename(columns={
+    "order_date" : "R",
+    "order_id" : "F",
+    "amount" : "M"
+}).sort_values("M", ascending= False).head().reset_index()
+    return result_df
     pass
